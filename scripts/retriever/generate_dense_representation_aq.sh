@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/zsh
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -19,7 +19,7 @@
 # under the License.
 
 
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
+PYT=python
 
 index=$1
 GPUID=$2

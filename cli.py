@@ -23,6 +23,7 @@ import re
 import sys
 import argparse
 import logging
+from pathlib import Path
 
 import random
 import numpy as np
@@ -34,6 +35,8 @@ import requests, json
 
 ############## SM ################
 WEBHOOK_URI = 'https://hooks.chime.aws/incomingwebhooks/233ea0a7-b376-4a7c-9159-a2518fc73f8b?token=TU9nbVc4ZTV8MXxqVnBvanQwb293U0JyN3prSzZtZy1DRmlrR09kRVE1SXNIUkRoT2pFM3pr'
+DEFAULT_ROOT_PATH = Path.cwd()
+
 
 def post_message(msg):
   response = None
@@ -308,6 +311,9 @@ def main():
     parser.add_argument("--task_1_gradient_accumulation_steps", default=4, type=int,
                         help="gradient acc for task 1")
 
+    # new args
+    parser.add_argument("--root_dir", type=str, default=DEFAULT_ROOT_PATH)
+
 
     args = parser.parse_args()
 
@@ -324,6 +330,7 @@ def main():
     else:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.use_gpu_ids
 
+    # 
     if is_sagemaker:
         FusionInDecoderDataReader = os.environ['SM_CHANNEL_DATA']
         FusionInDecoderDataRetriever = ''
@@ -332,14 +339,11 @@ def main():
             NQCheckpoint = os.environ.get('SM_CHANNEL_CKPT')
             args.checkpoint = os.path.join(NQCheckpoint, 'best-model.pt') if NQCheckpoint != '' and NQCheckpoint else None
     else:
-        if args.pycharm_debug:
-            FusionInDecoderDataReader = '/home/ubuntu/data/MyFusionInDecoderDataReaderDebug'
-            FusionInDecoderDataRetriever = '/home/ubuntu/data/MyFusionInDecoderDataRetrieverDebug'
-            FusionInDecoderOut = '/home/ubuntu/data/MyFusionInDecoderOutDebug'
-        else:
-            FusionInDecoderDataReader = '/home/ubuntu/data/MyFusionInDecoderDataReader'
-            FusionInDecoderDataRetriever = '/home/ubuntu/data/MyFusionInDecoderDataRetriever'
-            FusionInDecoderOut = '/home/ubuntu/data/MyFusionInDecoderOut'
+        root_dir = Path(args.root_dir)
+        FusionInDecoderDataReader = root_dir / 'reader_data'
+        FusionInDecoderDataRetriever = root_dir / 'retriever_data'
+        FusionInDecoderOut = root_dir / 'out_data'
+        
         if args.old_data:
             FusionInDecoderDataReader = os.path.join(FusionInDecoderDataReader, "old")
             FusionInDecoderDataRetriever = os.path.join(FusionInDecoderDataRetriever, "old")
@@ -349,6 +353,7 @@ def main():
             FusionInDecoderDataReader = os.path.join(FusionInDecoderDataReader, "Reranker_{}".format(args.dpr_checkpoint))
 
     if args.task not in ["over_generate", "lm_filtering", "em_filtering", "over_generate_lm_filtering"]:
+        # FIXME
         args.train_file = os.path.join(FusionInDecoderDataReader, args.train_file) if args.train_file != '' and args.train_file else ''
         args.predict_file = os.path.join(FusionInDecoderDataReader, args.predict_file) if args.predict_file != '' and args.predict_file else ''
 

@@ -89,10 +89,10 @@ wget https://nlp.cs.washington.edu/ambigqa/data/ambignq.zip -O reader_data/ambig
 
 # NQ-open dataset
 python download_data.py \
-    --resource data.nqopen.{train|dev|test} \
+    --resource data.nqopen.{train,dev,test} \
     --output_dir reader_data/nqopen/
 python download_data.py \
-    --resource data.nqopen.{train|dev|test}_id2answers \
+    --resource data.nqopen.{train,dev,test}_id2answers \
     --output_dir reader_data/nqopen/
 ```
 
@@ -119,13 +119,13 @@ The wikipedia is splitted into 10 shards for encoding. Here we use a for loop to
 
 for i in 0 1 2 3 4 5 6 7 8 9
 do
-    ./scripts/retriever/generate_dense_representations_nq.sh $i $GPU_ID
+    ./scripts/retriever/generate_dense_representation_nq.sh $i $GPU_ID
 done
 
 # For AmbigQA Wikipedia Dump
 for i in 0 1 2 3 4 5 6 7 8 9
 do
-    ./scripts/retriever/generate_dense_representations_aq.sh $i $GPU_ID
+    ./scripts/retriever/generate_dense_representation_aq.sh $i $GPU_ID
 done
 ```
 
