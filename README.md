@@ -133,10 +133,10 @@ done
 
 ```
 # NQ-open
-./scripts/retriever/retrieve_psgs_nq.sh reader_data/nqopen/{train|dev|test}.json $GPU_ID
+./scripts/retriever/retrieve_psgs_nq.sh {train,dev,test} $GPU_ID
 
 # AmbigQA
-./scripts/retriever/retrieve_psgs_aq.sh reader_data/ambigqa/{train|dev}.json $GPU_ID
+./scripts/retriever/retrieve_psgs_aq.sh {train,dev} $GPU_ID
 
 # Leaderboard Submission
 ./scripts/retriever/retrieve_psgs_aq_leaderboard.sh $GPU_ID
@@ -148,7 +148,7 @@ We train a `bert-large-uncased`-based reranker with listwise ranking loss. It ta
 Firstly, we train the reranker on the NQ-open dataset:
 
 ```
-./script/reranker/train_nq.sh
+./scripts/reranker/train_nq.sh
 ```
 
 Then, use the trained reranker to rerank passages for train, dev, test set of NQ-Open.
