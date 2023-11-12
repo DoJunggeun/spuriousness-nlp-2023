@@ -330,7 +330,7 @@ def main():
     else:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.use_gpu_ids
 
-    # 
+    # TODO: REMOVE 
     if is_sagemaker:
         FusionInDecoderDataReader = os.environ['SM_CHANNEL_DATA']
         FusionInDecoderDataRetriever = ''
