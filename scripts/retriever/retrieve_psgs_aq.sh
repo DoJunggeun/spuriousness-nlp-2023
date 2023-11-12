@@ -19,7 +19,6 @@
 # under the License.
 
 
-HOME=/home/ubuntu/data
 
 split=$1
 GPU=$2
