@@ -19,12 +19,10 @@
 # under the License.
 
 
-PYT=python
-
 index=$1
 GPUID=$2
 
-$PYT cli.py \
+python cli.py \
 --task=dpr \
 --do_predict=True \
 --bert_name=bert-base-uncased \

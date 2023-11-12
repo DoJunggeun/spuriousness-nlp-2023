@@ -19,12 +19,10 @@
 # under the License.
 
 
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
-
 index=$1
 GPUID=$2
 
-$PYT cli.py \
+python cli.py \
 --task=dpr \
 --do_predict=True \
 --bert_name=bert-base-uncased \
