@@ -27,8 +27,8 @@ python cli.py \
 --do_predict=True \
 --bert_name=bert-base-uncased \
 --predict_file=nqopen/dev.json \
---predict_batch_size=1600 \
---db_index=$index \
+--predict_batch_size=800 \
+--db_index=${index} \
 --verbose=True \
 --dpr_checkpoint=multiset \
 --use_gpu_ids=${GPUID} \
