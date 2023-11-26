@@ -211,9 +211,10 @@ class QAData(object):
             self.logger.info("Start processing DPR data")
             if self.passages.tokenized_data is None:
                 self.passages.load_tokenized_data("bart", all=True)
-            with open(dpr_retrieval_path, "r") as f:
-                dpr_passages = json.load(f)
-            assert len(dpr_passages)==len(self)
+            # skip (reranked data 끼워넣기)
+            # with open(dpr_retrieval_path, "r") as f:
+            #     dpr_passages = json.load(f)
+            # assert len(dpr_passages)==len(self)
 
             if self.args.use_reranker:
                 assert self.args.psg_sel_dir is not None
@@ -224,7 +225,8 @@ class QAData(object):
                 self.logger.info("Loading passage selection from DPR reader: {}".format(psg_sel_fn))
                 with open(psg_sel_fn, "r") as f:
                     fg_passages = json.load(f)
-                dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                dpr_passages = fg_passages
+                # dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
             else:
                 raise NotImplementedError
 
@@ -672,9 +674,10 @@ class AmbigQAData(QAData):
             self.logger.info("Start processing DPR data from {}".format(dpr_retrieval_path))
             if self.passages.tokenized_data is None:
                 self.passages.load_tokenized_data("bart", all=True)
-            with open(dpr_retrieval_path, "r") as f:
-                dpr_passages = json.load(f)
-            assert len(dpr_passages)==len(self)
+            # skip (reranked data 끼워넣기)
+            # with open(dpr_retrieval_path, "r") as f:
+            #     dpr_passages = json.load(f)
+            # assert len(dpr_passages)==len(self)
 
             if self.args.use_reranker:
                 assert self.args.psg_sel_dir is not None
@@ -686,7 +689,8 @@ class AmbigQAData(QAData):
                 self.logger.info("Loading passage selection from DPR reader: {}".format(psg_sel_fn))
                 with open(psg_sel_fn, "r") as f:
                     fg_passages = json.load(f)
-                dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                dpr_passages = fg_passages
+                # dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
                 assert len(fg_passages) == len(dpr_passages)
             else:
                 raise NotImplementedError
@@ -1053,7 +1057,8 @@ class DisAmbigQAData(QAData):
                 with open(psg_sel_fn, "r") as f:
                     fg_passages = json.load(f)
                 assert len(fg_passages) == len(dpr_passages)
-                dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                # dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                dpr_passges = fg_passages
             else:
                 raise NotImplementedError
 
