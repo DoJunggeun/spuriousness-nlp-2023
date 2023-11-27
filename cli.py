@@ -246,8 +246,8 @@ def main():
 
     # distributed related, not used
     parser.add_argument('--is_distributed', type=int, default='0', help="0: false (dataparallel), 1: distributed dataparallel")
-    parser.add_argument('--use_gpu_ids', type=str, default='0,1,2,3,4,5,6,7,', help="if dataparallel, use this to set gpu ids")
-    parser.add_argument('--num_gpus', type=int, default=8, help="if distributed dataparallel, use this to set number of gpus per node")
+    parser.add_argument('--use_gpu_ids', type=str, default='0,1,2,3', help="if dataparallel, use this to set gpu ids")
+    parser.add_argument('--num_gpus', type=int, default=4, help="if distributed dataparallel, use this to set number of gpus per node")
     parser.add_argument('--hosts', type=list, default=['localhost'])
     parser.add_argument('--current_host', type=str, default='localhost')
     parser.add_argument('--average_gradient', type=int, default='0', help='check do we need to average gradients or not using ddp')
@@ -364,11 +364,11 @@ def main():
 
     if args.task in ['qa', 'qg', 'rrk', 'qg_mask', 'qa_noamb_aq', 'qg_rewrite', "qg_weighted_loss", "qg_noprompt", "cotraining_label", "cotraining_train"]:
         args.output_dir = os.path.join(FusionInDecoderOut, args.output_dir) if args.output_dir != '' and args.output_dir else ''
-        args.psg_sel_dir = os.path.join(FusionInDecoderDataReader, 'ambigqa' if args.ambigqa else 'nqopen', 'psg_sel', args.psg_sel_dir) if args.psg_sel_dir != '' and args.psg_sel_dir else ''
+        args.psg_sel_dir = os.path.join(FusionInDecoderDataReader, 'ambigqa' if args.ambigqa else 'nqopen', 'psg_sel', args.psg_sel_dir if (args.psg_sel_dir != '' and args.psg_sel_dir) else '')
         print("PsgSel    Dir:\t{}".format(args.psg_sel_dir))
     elif args.task == 'qa_gen':
-        args.nq_psg_sel_dir = os.path.join(FusionInDecoderDataReader, 'nqopen', 'psg_sel', args.psg_sel_dir) if args.psg_sel_dir != '' and args.psg_sel_dir else ''
-        args.aq_psg_sel_dir = os.path.join(FusionInDecoderDataReader, 'ambigqa', 'psg_sel', args.psg_sel_dir) if args.psg_sel_dir != '' and args.psg_sel_dir else ''
+        args.nq_psg_sel_dir = os.path.join(FusionInDecoderDataReader, 'nqopen', 'psg_sel', args.psg_sel_dir if (args.psg_sel_dir != '' and args.psg_sel_dir) else '')
+        args.aq_psg_sel_dir = os.path.join(FusionInDecoderDataReader, 'ambigqa', 'psg_sel', args.psg_sel_dir if (args.psg_sel_dir != '' and args.psg_sel_dir) else '')
         args.output_dir = os.path.join(FusionInDecoderOut, args.output_dir) if args.output_dir != '' and args.output_dir else ''
         print("PsgSel NQ Dir:\t{}".format(args.nq_psg_sel_dir))
         print("PsgSel AQ Dir:\t{}".format(args.aq_psg_sel_dir))
@@ -429,12 +429,13 @@ def main():
     ##### Start writing logs
     log_filename = "{}log.txt".format("" if args.do_train else "eval_")
 
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO,
-                    handlers=[logging.FileHandler(os.path.join(args.output_dir, log_filename)),
-                              logging.StreamHandler()])
+                    handlers=[logging.FileHandler(os.path.join(args.output_dir, log_filename)),logging.StreamHandler()]
+                    )
     logger = logging.getLogger(__name__)
+    logger.info(f"[pid] {os.getpid()}")
     logger.info(args)
     logger.info(args.output_dir)
     logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -492,7 +493,7 @@ def main():
 
     logger.info("Using {} gpus".format(args.n_gpu))
 
-    if args.bert_name.startswith("bart") or args.bert_name.startswith("t5"):
+    if "bart" in args.bert_name or "t5" in args.bert_name:
         args.is_seq2seq = True
     elif args.bert_name.startswith("bert") or args.bert_name.startswith("roberta") or args.bert_name.startswith("albert"):
         args.is_seq2seq = False
