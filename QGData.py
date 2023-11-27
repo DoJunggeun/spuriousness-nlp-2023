@@ -690,7 +690,8 @@ class QGMaskedData(QGData):
                 with open(psg_sel_fn, "r") as f:
                     fg_passages = json.load(f)
                 assert len(fg_passages) == len(dpr_passages)
-                dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                # dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                dpr_passages = fg_passages
             else:
                 raise NotImplementedError
 
@@ -955,7 +956,8 @@ class AmbigQGData(AmbigQAData, QAData):
                 with open(psg_sel_fn, "r") as f:
                     fg_passages = json.load(f)
                 assert len(fg_passages)==len(dpr_passages)
-                dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                # dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                dpr_passages = fg_passages
             else:
                 raise NotImplementedError
 
@@ -1357,7 +1359,8 @@ class AmbigQGWeightedData(AmbigQAData, QAData):
                 with open(psg_sel_fn, "r") as f:
                     fg_passages = json.load(f)
                 assert len(fg_passages)==len(dpr_passages)
-                dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                # dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                dpr_passages = fg_passages
             else:
                 raise NotImplementedError
 
@@ -1915,7 +1918,8 @@ class AmbigQGNoPromptData(AmbigQAData, QAData):
                 with open(psg_sel_fn, "r") as f:
                     fg_passages = json.load(f)
                 assert len(fg_passages)==len(dpr_passages)
-                dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                # dpr_passages = [[psgs[i] for i in fg_psgs][:100] for psgs, fg_psgs in zip(dpr_passages, fg_passages)]
+                dpr_passages = fg_passages
             else:
                 raise NotImplementedError
 
