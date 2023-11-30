@@ -18,16 +18,15 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
+# sh scripts/answer_prediction/inference_aq.sh 0 out_data/answer_prediction_aq
 
 GPUID=$1
-PSG=100
-BZ=16
+PSG=8
+BZ=8
 OUT=$2
 PSG_DIR=$3
 
-$PYT cli.py \
+python cli.py \
 --task=qa \
 --predict_file=ambigqa/dev.json \
 --do_predict=True \
@@ -35,7 +34,7 @@ $PYT cli.py \
 --ambigqa=True \
 --wiki_2020=True \
 --bert_name=bart-large \
---checkpoint=/home/ubuntu/data/MyFusionInDecoderOut/${OUT}/output/out/best-model.pt \
+--checkpoint=${OUT}/best-model.pt \
 --max_answer_length=64 \
 --n_jobs=96 \
 --psg_sel_dir=${PSG_DIR} \

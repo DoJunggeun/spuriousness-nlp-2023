@@ -19,15 +19,17 @@
 # under the License.
 
 
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
+# sh scripts/question_disambiguation/train_nq.sh
 
-PSG=100
-GD=8
+BATCH_SIZE=64
+PSG=8
+GD=16
 BZD=4
+EP=10
 
 PSG_DIR=$1
 
-$PYT cli.py \
+python cli.py \
 --task=qg_mask \
 --train_file=nqopen/train.json \
 --predict_file=nqopen/dev.json \
@@ -40,7 +42,7 @@ $PYT cli.py \
 --top_k_passages=${PSG} \
 --use_reranker=True \
 --decoder_start_token_id=2 \
---train_batch_size=64 \
+--train_batch_size=${BATCH_SIZE} \
 --predict_batch_size=${BZD} \
 --learning_rate=1e-5 \
 --warmup_proportion=0.1 \
@@ -50,8 +52,8 @@ $PYT cli.py \
 --num_train_epochs=10 \
 --wait_step=100000000 \
 --verbose=True \
---eval_period=600 \
---use_gpu_ids=0,1,2,3,4,5,6,7 \
+--eval_period=${EP} \
+--use_gpu_ids=0,1,2,3 \
 --skip_inference=True
 
 

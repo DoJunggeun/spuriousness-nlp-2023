@@ -18,51 +18,51 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
-
 # BZ PSG GD BZD
 # 64 100  8  12
 # 64  50  4  12
 # 64  20  2  16
 # 64  10  1  16
 
+# sh ./scripts/answer_prediction/train_aq.sh out_data/answer-prediction-nq/best-model.pt 
 
 CKPT_ALL=$1
 
-PSG=100
-GD=8
-BZP=12
+BZ=64
+GD=16
+PSG=8
+BZP=8
 PSG_DIR=$2
+NUM_EPOCH=30
+EP=30
 
-$PYT cli.py \
+python cli.py \
 --task=qa \
 --train_file=ambigqa/train.json \
 --predict_file=ambigqa/dev.json \
---output_dir=answer_prediction_aq \
+--output_dir=answer_prediction_aq_2 \
 --do_train=True \
 --ambigqa=True \
 --wiki_2020=True \
 --bert_name=bart-large \
---checkpoint=$CKPT_ALL \
+--checkpoint=${CKPT_ALL} \
 --max_cat_answer_length=48 \
 --max_answer_length=64 \
 --n_jobs=96 \
---seed=66 \
 --psg_sel_dir=${PSG_DIR} \
 --top_k_passages=${PSG} \
 --use_reranker=True \
 --decoder_start_token_id=2 \
---train_batch_size=64 \
+--train_batch_size=${BZ} \
 --predict_batch_size=${BZP} \
 --learning_rate=3e-5 \
 --warmup_proportion=0.1 \
 --weight_decay=0.01 \
 --max_grad_norm=1.0 \
 --gradient_accumulation_steps=${GD} \
---num_train_epochs=30 \
+--num_train_epochs=${NUM_EPOCH} \
 --wait_step=1000000 \
 --verbose=True \
---eval_period=30 \
---use_gpu_ids=0,1,2,3,4,5,6,7 \
---discard_not_found_answers=True \
+--eval_period=${EP} \
+--use_gpu_ids=0,1,2,3 \
+--discard_not_found_answers=True

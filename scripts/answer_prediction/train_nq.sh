@@ -24,7 +24,7 @@ TK=8 # 100
 GD=16 # 8
 LR=5e-5 # for bz 64
 EP=327 # 600
-BZD=4 # 12
+BZD=8 # 12
 PSG_DIR=$1
 NUM_EPOCH=10 # 10
 

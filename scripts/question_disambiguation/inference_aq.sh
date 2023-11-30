@@ -19,8 +19,6 @@
 # under the License.
 
 
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
-
 # PSG BZD
 # 100  12
 #  50  12
@@ -37,7 +35,7 @@ PSG=10
 BZ=32
 GPUID=7
 
-$PYT cli.py \
+python cli.py \
 --task=qg \
 --predict_file=ambigqa/dev.json \
 --output_dir=${OUT_DIR} \
