@@ -68,8 +68,11 @@ def main():
 
     ## Basic parameters
     parser.add_argument("--task", default="qa", choices=["dpr", "qa", "qg", "rrk", "qg_mask", "qa_gen", "qa_noamb_aq",
-                                                         "qg_rewrite", "over_generate", "qg_weighted_loss", "lm_filtering", "em_filtering",
-                                                         "qg_noprompt", "over_generate_lm_filtering", "cotraining_label", "cotraining_train"],
+                                                         "qg_rewrite", "qg_weighted_loss",
+                                                         "qg_noprompt",  "cotraining_label", "cotraining_train",
+                                                         # only for inference. has `run_{task_name}` funciton in `run.py`
+                                                         "over_generate", "lm_filtering", "em_filtering", "over_generate_lm_filtering",
+                                                         ],
                         type=str,
                         help="1) dpr: dense passage retrieval (inference only);"
                              "2) qa: NQ/AQ; "
@@ -375,14 +378,16 @@ def main():
     elif args.task in ['over_generate']:
         # args.output_dir = os.path.join(FusionInDecoderOut, "MAP_{}_QD_{}".format(args.map_ckpt, args.qd_ckpt), "replace_prompt_qg" if bool(args.replace_prompt_question) else "original_prompt_qg")
         map_ckpt, qd_ckpt = args.map_ckpt, args.qd_ckpt
-        args.map_ckpt = os.path.join(FusionInDecoderOut, map_ckpt, "output", "out", "best-model.pt")
+        # args.map_ckpt = os.path.join(FusionInDecoderOut, map_ckpt, "output", "out", "best-model.pt")
+        args.map_ckpt = os.path.join(FusionInDecoderOut, map_ckpt, "best-model.pt") # temp
         if args.qd_ckpt_step is not None:
             args.qd_ckpt = os.path.join(FusionInDecoderOut, qd_ckpt, "output", "out", "model-step{}.pt".format(args.qd_ckpt_step))
             args.output_dir = os.path.join(FusionInDecoderOut, qd_ckpt, "result-step{}".format(args.qd_ckpt_step))
         else:
             args.output_dir = os.path.join(FusionInDecoderOut, "MAP_{}_QD_{}".format(map_ckpt, qd_ckpt), )
-            args.qd_ckpt = os.path.join(FusionInDecoderOut, qd_ckpt, "output", "out", "best-model.pt")
-        args.psg_sel_dir = os.path.join(FusionInDecoderDataReader, 'ambigqa' if args.ambigqa else 'nqopen', 'psg_sel', args.psg_sel_dir) if args.psg_sel_dir != '' and args.psg_sel_dir else ''
+            # args.qd_ckpt = os.path.join(FusionInDecoderOut, qd_ckpt, "output", "out", "best-model.pt")
+            args.qd_ckpt = os.path.join(FusionInDecoderOut, qd_ckpt, "best-model.pt") # temp
+        args.psg_sel_dir = os.path.join(FusionInDecoderDataReader, 'ambigqa' if args.ambigqa else 'nqopen', 'psg_sel', args.psg_sel_dir if (args.psg_sel_dir != '' and args.psg_sel_dir) else '')
         if args.over_generate_pass == 0:
             args.predict_file = os.path.join(FusionInDecoderDataReader, args.predict_file)
         else:
