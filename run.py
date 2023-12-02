@@ -181,7 +181,7 @@ def run(args, logger):
                 return key
             return {_convert(key):value for key, value in state_dict.items()}
         state_dict = convert_to_single_gpu(torch.load(checkpoint))
-        model = Model(Config.from_pretrained(args.bert_name))
+        model = Model(Config.from_pretrained(args.bert_name)) # TODO: add device_map='auto'
         if "bart" in args.bert_name:
             model.resize_token_embeddings(len(tokenizer))
         logger.info("Loading from {}".format(checkpoint))
@@ -625,13 +625,14 @@ def train(args, logger, model, train_data, dev_data, optimizer, scheduler):
                                          insert_loss_weight=args.lambda_qg_loss_weight)
                         else:
                             loss = model(input_ids=actual_batch[0], attention_mask=actual_batch[1],
-                                         decoder_input_ids=actual_batch[2], decoder_attention_mask=actual_batch[3],
+                                         decoder_input_ids=actual_batch[2], decoder_attention_mask=actual_batch[3], 
+                                         golden=actual_batch[4],
                                          is_training=True)
                 else:
                     raise NotImplementedError
 
                 # if we average over all gpus, then the model will be inclined to generate shorter answers
-                loss = torch.sum(loss) / num_preds
+                loss = torch.sum(loss) / 4 # TODO
                 if torch.isnan(loss).data:
                     logger.info("Stop training because loss=%s" % (loss.data))
                     stop_training = True
