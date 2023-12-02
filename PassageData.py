@@ -53,8 +53,9 @@ class PassageData(object):
                         break
             assert all([len(d)==3 for d in data])
             assert data[0]==["id", "text", "title"]
-            self.passages = {int(d[0])-1:d[1].lower() for d in data[1:]}
-            self.titles = {int(d[0])-1:d[2].lower() for d in data[1:]}
+            # int(d[0])-1 : id (because the id starts from 1)
+            self.passages = {int(d[0])-1:d[1].lower() for d in data[1:]}  # d[1].lower() : passage
+            self.titles = {int(d[0])-1:d[2].lower() for d in data[1:]}  # d[2].lower() : title
             self.logger.info("Loaded {} passages".format(len(self.passages)))
 
     def load_tokenized_data(self, model_name, all=False, do_return=False, index=None):
