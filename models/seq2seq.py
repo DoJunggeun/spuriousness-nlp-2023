@@ -24,9 +24,21 @@ from torch import Tensor, nn
 from transformers import T5ForConditionalGeneration, BartForConditionalGeneration
 
 class MyBart(BartForConditionalGeneration):
+    def __init__(self, config):
+        # TODO need to check config
+        super().__init__(config)
+        
+        # TODO 
+        self.class_num = 2 
+        self.classifier = nn.Linear(config.hidden_size, self.class_num)
+        
+        # nested with `if` in `RFiD`
+        self.classfied_pred_embedding = nn.Embedding(2, config.d_model)
+    
     def forward(self, input_ids, attention_mask=None, encoder_outputs=None,
             decoder_input_ids=None, decoder_attention_mask=None, decoder_cached_states=None,
-            lm_labels=None, use_cache=False, is_training=False):
+            lm_labels=None, use_cache=False, is_training=False, golden=None):
+        # golden shape: batch size * passage number
         if is_training:
             # generate LM labels
             pad_token_id = self.config.pad_token_id
@@ -45,17 +57,43 @@ class MyBart(BartForConditionalGeneration):
             y_mask = None
 
         if input_ids is not None:
-            N, M, L = input_ids.shape
+            N, M, L = input_ids.shape # N: batch size, M: passage number, L: sequence length
             H = 1024  # for bart-large
 
-            multi_enc_out = self.model.encoder(input_ids=input_ids.view(N*M,L), attention_mask=attention_mask.view(N*M,L))[0]
-            multi_enc_out = (multi_enc_out.view(N,M,L,H).reshape(N,M*L,H), [], [])
-            multi_enc_attn_mask = attention_mask.view(N,-1)
+            multi_enc_out = self.model.encoder(
+                input_ids=input_ids.view(N*M,L),
+                attention_mask=attention_mask.view(N*M,L)
+                )[0]
+            
+            # add classification
+            # need to check the shape
+            multi_enc_out_by_passage = multi_enc_out.view(N,M,L,H)
+            multi_enc_out_cls = multi_enc_out_by_passage[:, :, 0, :]
+            classifier_logits = self.classifier(multi_enc_out_cls)
+            preds = torch.argmax(classifier_logits, dim=-1)
+            
+            # multi_enc_out_into_decoder = (multi_enc_out_by_passage.reshape(N,M*L,H), [], [])
+            multi_enc_attn_mask = attention_mask.view(N,-1) # N, M*L
 
+            # TODO 
+            cat_embed = True
+            if cat_embed: # 
+                # add label
+                label_embedding = self.classfied_pred_embedding(preds).unsqueeze(dim=2)
+                multi_enc_out_into_decoder = torch.cat([multi_enc_out_by_passage, label_embedding], dim=2) \
+                                                .view(N, (L+1) * M, H)
+                
+                # add mask
+                multi_enc_attn_mask = multi_enc_attn_mask.view(N, M, L)
+                preds_mask = preds.unsqueeze(dim=-1).bool() # why
+                enc_attn_mask_into_decoder = torch.cat([multi_enc_attn_mask, preds_mask], dim=-1) \
+                                                .view(N, (L+1) * M)
+                
+            
             outputs = self.model(
                 None,
-                attention_mask=multi_enc_attn_mask,
-                encoder_outputs=multi_enc_out,
+                attention_mask=enc_attn_mask_into_decoder,
+                encoder_outputs=(multi_enc_out_into_decoder, [], []),
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
                 decoder_cached_states=decoder_cached_states,
@@ -74,9 +112,15 @@ class MyBart(BartForConditionalGeneration):
             )
         lm_logits = F.linear(outputs[0], self.model.shared.weight, bias=self.final_logits_bias)
         if is_training:
-            loss_fct = nn.CrossEntropyLoss(reduction='none')
-            loss = loss_fct(lm_logits.view(-1, self.config.vocab_size), lm_labels.view(-1))
-            return loss.view(lm_labels.shape[0], -1)
+            # RFiD : `reduction` is 'mean'
+            # loss_fct = nn.CrossEntropyLoss(reduction='none')
+            loss_fct = nn.CrossEntropyLoss()
+            fid_loss = loss_fct(lm_logits.view(-1, self.config.vocab_size), lm_labels.view(-1))
+            
+            # classifer_loss_fct = nn.CrossEntropyLoss()
+            classifier_loss = loss_fct(classifier_logits.view(-1, self.class_num), golden.view(-1))
+            
+            return fid_loss + classifier_loss
         return (lm_logits, ) + outputs[1:]
 
     @torch.no_grad()
