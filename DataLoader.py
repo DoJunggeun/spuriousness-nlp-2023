@@ -46,7 +46,6 @@ class MySimpleQADataset(Dataset):
             if is_training and out_metadata is None else out_metadata
         self.is_training = is_training
         self.answer_as_prefix = answer_as_prefix
-        self.answers = answers
         self.tokenizer = tokenizer
 
         assert len(self.input_ids)==len(self.attention_mask)==self.in_metadata[-1][-1]
