@@ -18,8 +18,10 @@
 # under the License.
 
 
+import string
 import numpy as np
 import time
+import regex
 import torch
 from torch.utils.data import Dataset, TensorDataset, DataLoader, RandomSampler, SequentialSampler
 import torch.utils.data.distributed
@@ -30,7 +32,10 @@ class MySimpleQADataset(Dataset):
                  decoder_input_ids=None, decoder_attention_mask=None,
                  in_metadata=None, out_metadata=None,
                  is_training=False,
-                 answer_as_prefix=False):
+                 answer_as_prefix=False,
+                 tokenizer=None,
+                 answers=None,
+                ):
         self.input_ids = torch.LongTensor(input_ids)
         self.attention_mask = torch.LongTensor(attention_mask)
         self.decoder_input_ids = None if decoder_input_ids is None else torch.LongTensor(decoder_input_ids)
@@ -41,6 +46,7 @@ class MySimpleQADataset(Dataset):
             if is_training and out_metadata is None else out_metadata
         self.is_training = is_training
         self.answer_as_prefix = answer_as_prefix
+        self.tokenizer = tokenizer
 
         assert len(self.input_ids)==len(self.attention_mask)==self.in_metadata[-1][-1]
         assert not self.is_training or len(self.decoder_input_ids)==len(self.decoder_attention_mask)==self.out_metadata[-1][-1]
@@ -57,10 +63,54 @@ class MySimpleQADataset(Dataset):
                     self.decoder_input_ids[out_idx], self.decoder_attention_mask[out_idx]
             return self.input_ids[idx], self.attention_mask[idx]
 
-        in_idx = np.random.choice(range(*self.in_metadata[idx]))
+        in_idx = np.random.choice(range(*self.in_metadata[idx])) # XXX: okay to just choose one?
         out_idx = np.random.choice(range(*self.out_metadata[idx]))
+        golden = self._get_golden_answer(self.input_ids[in_idx], self.decoder_input_ids[out_idx])
+        golden = torch.tensor(golden, dtype=torch.int64)
+    
         return self.input_ids[in_idx], self.attention_mask[in_idx], \
-            self.decoder_input_ids[out_idx], self.decoder_attention_mask[out_idx]
+            self.decoder_input_ids[out_idx], self.decoder_attention_mask[out_idx], golden
+    
+    def _get_golden_answer(self, multiple_qp_ids, answer_ids):
+        golden = []
+        
+        # get str answers
+        bos_idx = (answer_ids == self.tokenizer.bos_token_id).nonzero(as_tuple=True)[0][0]
+        eos_idx = (answer_ids == self.tokenizer.eos_token_id).nonzero(as_tuple=True)[0][0]
+        str_answers = self.tokenizer.decode(answer_ids[bos_idx+1:eos_idx])
+        
+        for qp_ids in multiple_qp_ids:
+            # get str passages
+            eos_idx = (qp_ids == self.tokenizer.eos_token_id).nonzero(as_tuple=True)[0][0]
+            curr_passage_id = qp_ids[eos_idx+1:]
+            str_passages = self.tokenizer.decode(curr_passage_id)
+            
+            is_golden = self._check_answers(str_answers, str_passages)
+
+            golden.append(is_golden)
+        
+        return golden
+
+    def _check_answers(self, answers, passage):
+        """Copied from  RFiD"""
+        def remove_articles(text):
+            return regex.sub(r'\b(a|an|the)\b', ' ', text)
+
+        def white_space_fix(text):
+            return ' '.join(text.split())
+
+        def remove_punc(text):
+            exclude = set(string.punctuation)
+            return ''.join(ch for ch in text if ch not in exclude)
+
+        def lower(text):
+            return text.lower()
+        passage = white_space_fix(remove_articles(remove_punc(lower(passage.strip()))))
+
+        preprocessed_answer = white_space_fix(remove_articles(remove_punc(lower(answers.strip()))))
+        if preprocessed_answer in passage:
+            return 1
+        return 0
 
 
 class MySimpleQALMFilteringDataset(Dataset):
@@ -322,6 +372,10 @@ class MyQADataset(Dataset):
             [self._pad([t], self.train_M) for t in [positive_start_positions,
                                                   positive_end_positions,
                                                   positive_answer_mask]]
+
+        # golden
+        
+        
         return input_ids, input_mask, token_type_ids, start_positions, end_positions, answer_mask
 
     def tensorize(self, key):

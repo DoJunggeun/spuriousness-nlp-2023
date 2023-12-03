@@ -538,7 +538,8 @@ class QAData(object):
                                              in_metadata=None,
                                              out_metadata=metadata,
                                              is_training=self.is_training,
-                                             answer_as_prefix=self.args.nq_answer_as_prefix)
+                                             answer_as_prefix=self.args.nq_answer_as_prefix,
+                                             tokenizer=tokenizer)
         self.logger.info("Loaded {} examples from {} data".format(len(self.dataset), self.data_type))
 
         if do_return:

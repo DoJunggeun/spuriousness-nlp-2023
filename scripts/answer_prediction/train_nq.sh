@@ -23,7 +23,7 @@ BZ=64 # 64
 TK=8 # 100
 GD=16 # 8
 LR=5e-5 # for bz 64
-EP=327 # 600
+EP=200 # 600
 BZD=8 # 12
 PSG_DIR=$1
 NUM_EPOCH=10 # 10
@@ -42,7 +42,7 @@ python cli.py \
 --train_file=nqopen/train.json \
 --predict_file=nqopen/dev.json \
 --do_train=True \
---output_dir=answer-prediction-nq \
+--output_dir=answer-prediction-nq-classifier-4 \
 --bert_name=bart-large \
 --max_answer_length=16 \
 --psg_sel_dir=${PSG_DIR} \
