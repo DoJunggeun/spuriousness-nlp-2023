@@ -40,7 +40,7 @@ python cli.py \
 --task=qa \
 --train_file=ambigqa/train.json \
 --predict_file=ambigqa/dev.json \
---output_dir=answer_prediction_aq_2 \
+--output_dir=answer_prediction_aq_rfid \
 --do_train=True \
 --ambigqa=True \
 --wiki_2020=True \

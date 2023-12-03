@@ -42,7 +42,7 @@ python cli.py \
 --train_file=nqopen/train.json \
 --predict_file=nqopen/dev.json \
 --do_train=True \
---output_dir=answer-prediction-nq \
+--output_dir=answer-prediction-nq-classifier-3 \
 --bert_name=bart-large \
 --max_answer_length=16 \
 --psg_sel_dir=${PSG_DIR} \
