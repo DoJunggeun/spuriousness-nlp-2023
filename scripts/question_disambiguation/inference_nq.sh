@@ -18,23 +18,24 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
-
 # 10 16
 # 20 8
 # 25 6
 # 50 3
 # 100 1
 
-PSG=100
+# sh scripts/question_disambiguation/inference_nq.sh 0 question_disambiguation_nq out_data/question_disambiguation_nq/best-model.pt
+
+# script/question_disambiguation/inference_nq.sh gpu_id path/to/save/outputs path/to/reranker/outputs path/to/trained/ckpt
+
+PSG=8
 BZ=8
 GPU=$1
 OUT=$2
-PSG_DIR=$3
-CKPT=$4
+CKPT=$3
+PSG_DIR=$4
 
-$PYT cli.py \
+python cli.py \
 --task=qg_mask \
 --predict_file=nqopen/dev.json \
 --output_dir=${OUT} \

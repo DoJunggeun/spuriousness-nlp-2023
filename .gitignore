@@ -1,3 +1,7 @@
 __pycache__
 reader_data/*
 retriever_data/*
+*.code-workspace
+*log.txt
+out_data/*
+logs/*

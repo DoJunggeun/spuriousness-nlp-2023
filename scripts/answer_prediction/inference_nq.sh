@@ -18,9 +18,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
-
 # BZ PSG GD BZD
 # 64 100  8  12
 # 64  50  4  12
@@ -30,28 +27,30 @@ PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
 
 GPUID=$1
 
-TK=100
-BZD=12
+TK=8
+BZD=8
 split=$2
 OUT=$3
-CKPT=$OUT/output/out/best-model.pt
+CKPT=$OUT/best-model.pt
 RRK_DIR=$4
 
-$PYT cli.py \
+# sh ./scripts/answer_prediction/inference_nq.sh 0 dev out_data/answer-prediction-nq
+
+python cli.py \
 --do_predict=True \
 --task=qa \
---output_dir=$OUT \
+--output_dir=${OUT} \
 --predict_file=nqopen/${split}.json \
 --bert_name=bart-large \
 --max_answer_length=16 \
 --psg_sel_dir=${RRK_DIR} \
---top_k_passages=$TK \
---predict_batch_size=$BZD \
+--top_k_passages=${TK} \
+--predict_batch_size=${BZD} \
 --verbose=True \
 --n_jobs=96 \
---use_gpu_ids=$GPUID \
+--use_gpu_ids=${GPUID} \
 --decoder_start_token_id=2 \
---checkpoint=$CKPT \
+--checkpoint=${CKPT} \
 --use_reranker=True
 
 

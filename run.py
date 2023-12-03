@@ -576,7 +576,7 @@ def train(args, logger, model, train_data, dev_data, optimizer, scheduler):
 
     logger.info("Start training!")
     for epoch in range(int(args.num_train_epochs)):
-        for batch in train_data.dataloader:
+        for batch in tqdm(train_data.dataloader, desc="training"):
             # debug code
             if global_step == 0:
                 logger.info('Batch size {}'.format(len(batch[0])))
