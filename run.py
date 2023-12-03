@@ -668,6 +668,8 @@ def train(args, logger, model, train_data, dev_data, optimizer, scheduler):
                     model.train()
                 else:
                     model.eval()
+                    model_state_dict = {k:v.cpu() for (k, v) in model.state_dict().items()}
+                    torch.save(model_state_dict, os.path.join(args.output_dir, "model-step{}.pt".format(global_step)))
                     curr_em = inference(model, dev_data, save_predictions=False, logger=logger)
                     if type(curr_em) == tuple:
                         curr_em, curr_results = curr_em
@@ -684,7 +686,6 @@ def train(args, logger, model, train_data, dev_data, optimizer, scheduler):
                     train_losses = []
                     train_preds = []
                     if best_accuracy < curr_em:
-                        model_state_dict = {k:v.cpu() for (k, v) in model.state_dict().items()}
                         torch.save(model_state_dict, os.path.join(args.output_dir, "best-model.pt"))
                         if curr_results:
                             curr_results['epoch'] = epoch
