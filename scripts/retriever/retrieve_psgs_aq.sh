@@ -19,13 +19,11 @@
 # under the License.
 
 
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
-HOME=/home/ubuntu/data
 
 split=$1
 GPU=$2
 
-$PYT cli.py \
+python cli.py \
 --bert_name=bert-base-uncased \
 --do_predict=True \
 --task=dpr \

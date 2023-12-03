@@ -89,10 +89,10 @@ wget https://nlp.cs.washington.edu/ambigqa/data/ambignq.zip -O reader_data/ambig
 
 # NQ-open dataset
 python download_data.py \
-    --resource data.nqopen.{train|dev|test} \
+    --resource data.nqopen.{train,dev,test} \
     --output_dir reader_data/nqopen/
 python download_data.py \
-    --resource data.nqopen.{train|dev|test}_id2answers \
+    --resource data.nqopen.{train,dev,test}_id2answers \
     --output_dir reader_data/nqopen/
 ```
 
@@ -119,13 +119,13 @@ The wikipedia is splitted into 10 shards for encoding. Here we use a for loop to
 
 for i in 0 1 2 3 4 5 6 7 8 9
 do
-    ./scripts/retriever/generate_dense_representations_nq.sh $i $GPU_ID
+    ./scripts/retriever/generate_dense_representation_nq.sh $i $GPU_ID
 done
 
 # For AmbigQA Wikipedia Dump
 for i in 0 1 2 3 4 5 6 7 8 9
 do
-    ./scripts/retriever/generate_dense_representations_aq.sh $i $GPU_ID
+    ./scripts/retriever/generate_dense_representation_aq.sh $i $GPU_ID
 done
 ```
 
@@ -133,10 +133,10 @@ done
 
 ```
 # NQ-open
-./scripts/retriever/retrieve_psgs_nq.sh reader_data/nqopen/{train|dev|test}.json $GPU_ID
+./scripts/retriever/retrieve_psgs_nq.sh {train,dev,test} $GPU_ID
 
 # AmbigQA
-./scripts/retriever/retrieve_psgs_aq.sh reader_data/ambigqa/{train|dev}.json $GPU_ID
+./scripts/retriever/retrieve_psgs_aq.sh {train,dev} $GPU_ID
 
 # Leaderboard Submission
 ./scripts/retriever/retrieve_psgs_aq_leaderboard.sh $GPU_ID
@@ -148,7 +148,7 @@ We train a `bert-large-uncased`-based reranker with listwise ranking loss. It ta
 Firstly, we train the reranker on the NQ-open dataset:
 
 ```
-./script/reranker/train_nq.sh
+./scripts/reranker/train_nq.sh
 ```
 
 Then, use the trained reranker to rerank passages for train, dev, test set of NQ-Open.

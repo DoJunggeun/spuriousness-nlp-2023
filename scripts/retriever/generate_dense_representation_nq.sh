@@ -19,18 +19,16 @@
 # under the License.
 
 
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
-
 index=$1
 GPUID=$2
 
-$PYT cli.py \
+python cli.py \
 --task=dpr \
 --do_predict=True \
 --bert_name=bert-base-uncased \
 --predict_file=nqopen/dev.json \
---predict_batch_size=1600 \
---db_index=$index \
+--predict_batch_size=800 \
+--db_index=${index} \
 --verbose=True \
 --dpr_checkpoint=multiset \
 --use_gpu_ids=${GPUID}

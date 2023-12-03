@@ -23,10 +23,19 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 from transformers import T5ForConditionalGeneration, BartForConditionalGeneration
 
-class MyBart(BartForConditionalGeneration):
-    def forward(self, input_ids, attention_mask=None, encoder_outputs=None,
-            decoder_input_ids=None, decoder_attention_mask=None, decoder_cached_states=None,
-            lm_labels=None, use_cache=False, is_training=False):
+class MyBart(BartForConditionalGeneration):    
+    def forward(
+            self,
+            input_ids,
+            attention_mask=None,
+            encoder_outputs=None,
+            decoder_input_ids=None,
+            decoder_attention_mask=None,
+            past_key_values=None,
+            lm_labels=None,
+            use_cache=False,
+            is_training=False
+        ):
         if is_training:
             # generate LM labels
             pad_token_id = self.config.pad_token_id
@@ -58,7 +67,7 @@ class MyBart(BartForConditionalGeneration):
                 encoder_outputs=multi_enc_out,
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
-                decoder_cached_states=decoder_cached_states,
+                past_key_values=past_key_values,
                 use_cache=use_cache,
             )
         else:
@@ -69,7 +78,7 @@ class MyBart(BartForConditionalGeneration):
                 encoder_outputs=encoder_outputs,
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
-                decoder_cached_states=decoder_cached_states,
+                past_key_values=past_key_values,
                 use_cache=use_cache,
             )
         lm_logits = F.linear(outputs[0], self.model.shared.weight, bias=self.final_logits_bias)
@@ -481,7 +490,7 @@ class MyBart(BartForConditionalGeneration):
 
 class MyBartWeightedLoss(MyBart):
     def forward(self, input_ids, attention_mask=None, encoder_outputs=None,
-            decoder_input_ids=None, decoder_attention_mask=None, decoder_cached_states=None,
+            decoder_input_ids=None, decoder_attention_mask=None, past_key_values=None,
             lm_labels=None, use_cache=False, is_training=False,
                 weighted_positions=None, insert_loss_weight=1.0):
         if is_training:
@@ -515,7 +524,7 @@ class MyBartWeightedLoss(MyBart):
                 encoder_outputs=multi_enc_out,
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
-                decoder_cached_states=decoder_cached_states,
+                past_key_values=past_key_values,
                 use_cache=use_cache,
             )
         else:
@@ -526,7 +535,7 @@ class MyBartWeightedLoss(MyBart):
                 encoder_outputs=encoder_outputs,
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
-                decoder_cached_states=decoder_cached_states,
+                past_key_values=past_key_values,
                 use_cache=use_cache,
             )
         lm_logits = F.linear(outputs[0], self.model.shared.weight, bias=self.final_logits_bias)
@@ -541,7 +550,7 @@ class MyBartWeightedLoss(MyBart):
 class MyBartDynamic(BartForConditionalGeneration):
     "dynamic number of passages for each question"
     def forward(self, input_ids, attention_mask=None, encoder_outputs=None,
-            decoder_input_ids=None, decoder_attention_mask=None, decoder_cached_states=None,
+            decoder_input_ids=None, decoder_attention_mask=None, past_key_values=None,
             lm_labels=None, use_cache=False, is_training=False, is_discard=None):
         if is_training:
             # generate LM labels
@@ -577,7 +586,7 @@ class MyBartDynamic(BartForConditionalGeneration):
                 encoder_outputs=multi_enc_out,
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
-                decoder_cached_states=decoder_cached_states,
+                past_key_values=past_key_values,
                 use_cache=use_cache,
             )
         else:
@@ -588,7 +597,7 @@ class MyBartDynamic(BartForConditionalGeneration):
                 encoder_outputs=encoder_outputs,
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
-                decoder_cached_states=decoder_cached_states,
+                past_key_values=past_key_values,
                 use_cache=use_cache,
             )
         lm_logits = F.linear(outputs[0], self.model.shared.weight, bias=self.final_logits_bias)
@@ -1005,7 +1014,7 @@ class MyBartDynamic(BartForConditionalGeneration):
 class MyBartDynamicWeightedLoss(BartForConditionalGeneration):
     "dynamic number of passages for each question"
     def forward(self, input_ids, attention_mask=None, encoder_outputs=None,
-            decoder_input_ids=None, decoder_attention_mask=None, decoder_cached_states=None,
+            decoder_input_ids=None, decoder_attention_mask=None, past_key_values=None,
             lm_labels=None, use_cache=False, is_training=False, is_discard=None,
                 weighted_positions=None, insert_loss_weight=1.0):
         if is_training:
@@ -1042,7 +1051,7 @@ class MyBartDynamicWeightedLoss(BartForConditionalGeneration):
                 encoder_outputs=multi_enc_out,
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
-                decoder_cached_states=decoder_cached_states,
+                past_key_values=past_key_values,
                 use_cache=use_cache,
             )
         else:
@@ -1053,7 +1062,7 @@ class MyBartDynamicWeightedLoss(BartForConditionalGeneration):
                 encoder_outputs=encoder_outputs,
                 decoder_input_ids=y_ids,
                 decoder_attention_mask=y_mask,
-                decoder_cached_states=decoder_cached_states,
+                past_key_values=past_key_values,
                 use_cache=use_cache,
             )
         lm_logits = F.linear(outputs[0], self.model.shared.weight, bias=self.final_logits_bias)
@@ -1471,7 +1480,7 @@ class MyBartDynamicWeightedLoss(BartForConditionalGeneration):
 class MyBartS2S(BartForConditionalGeneration):
     "seq2seq model for bart, not Fusion-in-decoder kind of input!"
     def forward(self, input_ids, attention_mask=None, encoder_outputs=None,
-            decoder_input_ids=None, decoder_attention_mask=None, decoder_cached_states=None,
+            decoder_input_ids=None, decoder_attention_mask=None, past_key_values=None,
             lm_labels=None, use_cache=False, is_training=False):
         if is_training:
             # generate LM labels
@@ -1492,7 +1501,7 @@ class MyBartS2S(BartForConditionalGeneration):
             encoder_outputs=encoder_outputs,
             decoder_input_ids=y_ids,
             decoder_attention_mask=y_mask,
-            decoder_cached_states=decoder_cached_states,
+            past_key_values=past_key_values,
             use_cache=use_cache,
         )
 

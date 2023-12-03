@@ -19,11 +19,10 @@
 # under the License.
 
 
-PYT=/home/ubuntu/anaconda3/envs/AQ/bin/python
 
 ckpt=multiset
 
-$PYT cli.py \
+python cli.py \
 --task=rrk \
 --train_file=nqopen/train.json \
 --predict_file=nqopen/dev.json \

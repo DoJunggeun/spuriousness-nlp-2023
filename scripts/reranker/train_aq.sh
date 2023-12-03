@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/env bash
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -19,17 +19,31 @@
 # under the License.
 
 
-index=$1
-GPUID=$2
+
+ckpt=multiset
 
 python cli.py \
---task=dpr \
---do_predict=True \
---bert_name=bert-base-uncased \
---predict_file=nqopen/dev.json \
---predict_batch_size=800 \
---db_index=${index} \
+--task=rrk \
+--train_file=ambigqa/train.json \
+--predict_file=ambigqa/dev.json \
+--output_dir=reranker-ambigqa \
+--do_train=True \
+--bert_name=bert-large-uncased \
+--dpr_checkpoint=${ckpt} \
+--train_MP=1 \
+--train_MN=31 \
+--test_M=200 \
+--n_jobs=64 \
+--train_batch_size=16 \
+--predict_batch_size=16 \
+--learning_rate=1e-5 \
+--warmup_proportion=0.1 \
+--weight_decay=0.01 \
+--max_grad_norm=1.0 \
+--gradient_accumulation_steps=1 \
+--num_train_epochs=10 \
+--wait_step=100000000 \
 --verbose=True \
---dpr_checkpoint=multiset \
---use_gpu_ids=${GPUID} \
---wiki_2020=True
+--eval_period=10 \
+--use_gpu_ids=0,1,2,3
+> /home/j2/projects/refuel-open-domain-qa/nohup-rrk-ambigqa-train.log 2>&1 &

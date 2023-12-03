@@ -224,21 +224,21 @@ RESOURCES_MAP = {
         'desc': 'Test file for NQ-open'
     },
 
-    'data.nqopen.train_id2answers': {
+    'data.ambigqa.train_id2answers': {
         's3_url': 'https://nlp.cs.washington.edu/ambigqa/data/train_id2answers.json',
         'original_ext': '.json',
         'compressed': False,
         'desc': 'Dev id to official answers provided by Google'
     },
 
-    'data.nqopen.dev_id2answers': {
+    'data.ambigqa.dev_id2answers': {
         's3_url': 'https://nlp.cs.washington.edu/ambigqa/data/dev_id2answers.json',
         'original_ext': '.json',
         'compressed': False,
         'desc': 'Dev id to official answers provided by Google'
     },
 
-    'data.nqopen.test_id2answers': {
+    'data.ambigqa.test_id2answers': {
         's3_url': 'https://nlp.cs.washington.edu/ambigqa/data/test_id2answers.json',
         'original_ext': '.json',
         'compressed': False,
