@@ -28,6 +28,7 @@ from pathlib import Path
 import random
 import numpy as np
 import torch
+from monitoring import log_start_end
 
 from run import run, run_over_generate, run_lm_filtering, run_em_filtering, run_over_generate_lm_filtering
 
@@ -63,6 +64,8 @@ def notify_failure():
   req_res = post_message(message)
 ############## SM ################
 
+
+@log_start_end
 def main():
     parser = argparse.ArgumentParser()
 
@@ -317,7 +320,7 @@ def main():
     # new args
     parser.add_argument("--root_dir", type=str, default=DEFAULT_ROOT_PATH)
     parser.add_argument("--start_step", type=int, default=0)
-
+    parser.add_argument("--end_step", type=int, default=100000)
 
     args = parser.parse_args()
 
@@ -455,6 +458,10 @@ def main():
     args.n_gpu = torch.cuda.device_count()
     if args.n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
+        
+    # validate path
+    if args.checkpoint:
+        assert os.path.exists(args.checkpoint), f"Invalid `checkpoint` path {args.checkpoint}"
 
     if args.do_train:
         if not args.train_file:
