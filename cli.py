@@ -318,6 +318,7 @@ def main():
                         help="gradient acc for task 1")
 
     # new args
+    parser.add_argument("--use_classifier", type=bool, default=False)
     parser.add_argument("--root_dir", type=str, default=DEFAULT_ROOT_PATH)
     parser.add_argument("--start_step", type=int, default=0)
     parser.add_argument("--end_step", type=int, default=100000)

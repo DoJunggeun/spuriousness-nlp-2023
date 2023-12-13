@@ -40,7 +40,7 @@ from PassageData import PassageData
 from RerankData import NQRerankerData, AQRerankerData
 from models.span_predictor import SpanPredictor, AlbertSpanPredictor
 from models.reranker import BertReranker
-from models.seq2seq import MyBart, MyT5, MyBartS2S, MyBartDynamic, MyBartDynamicWeightedLoss, MyBartWeightedLoss
+from models.seq2seq import MyBart, MyBartWithClassifier, MyT5, MyBartS2S, MyBartDynamic, MyBartDynamicWeightedLoss, MyBartWeightedLoss
 from models.seq2seq_with_prefix import MyBartWithPrefix
 from models.lm_filtering import MyBartLMFiltering
 from models.biencoder import MyBiEncoder
@@ -89,7 +89,10 @@ def run(args, logger):
             else:
                 Model = MyBartWeightedLoss
         else:
-            Model = MyBart
+            if args.use_classifier:
+                Model = MyBartWithClassifier
+            else:
+                Model = MyBart
         Config = BartConfig
         if args.task == 'qa_gen':
             tokenizer.add_tokens(["<QAGEN-Q>"])
