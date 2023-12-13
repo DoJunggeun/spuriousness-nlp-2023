@@ -316,6 +316,7 @@ def main():
 
     # new args
     parser.add_argument("--root_dir", type=str, default=DEFAULT_ROOT_PATH)
+    parser.add_argument("--start_step", type=int, default=0)
 
 
     args = parser.parse_args()

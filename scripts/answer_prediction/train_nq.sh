@@ -42,7 +42,9 @@ python cli.py \
 --train_file=nqopen/train.json \
 --predict_file=nqopen/dev.json \
 --do_train=True \
---output_dir=answer-prediction-nq-classifier-4 \
+--checkpoint=out_data/answer-prediction-nq-baseline/model-step2800.pt \
+--start_step 2800 \
+--output_dir=answer-prediction-nq-baseline \
 --bert_name=bart-large \
 --max_answer_length=16 \
 --psg_sel_dir=${PSG_DIR} \

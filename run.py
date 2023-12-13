@@ -567,7 +567,7 @@ def run_over_generate_lm_filtering(args, logger):
 
 def train(args, logger, model, train_data, dev_data, optimizer, scheduler):
     model.train()
-    global_step = 0
+    global_step = args.start_step
     train_losses = []
     train_preds = []
     best_accuracy = -1
