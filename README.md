@@ -1,6 +1,6 @@
 # Mitigating Generator Input Spuriousness For Multi-Answer Open Domain Question Answering
 
-This repository is the implementation of research project for 2023 Fall Semester NLP class. We are Team 9 (Jaeyoung Lee, Junggeun Do)
+This repository is the implementation, based on [REFUEL paper's official repository](https://github.com/given131/refuel), of research project for 2023 Fall Semester NLP class. We are Team 9 (Jaeyoung Lee, Junggeun Do). 
 
 ## Requirements
 ```
